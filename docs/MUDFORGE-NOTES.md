@@ -506,6 +506,42 @@ declarations used above their `local` line as well — but only bare ones, since
 a general version of that check needs real scope analysis and a first attempt
 flagged thirty function-locals that merely shared a name.
 
+### 13b-bis. A helper whose paths return different COUNTS
+
+Note 13b says return one value. The way it actually ships is a helper that
+returns two on one path and one on another, read with multiple assignment:
+
+```lua
+local function as_place(s)
+    if KNOWN[k] then return { name = k, ... } end       -- one
+    if #hits > 1 then return nil, table.concat(hits) end -- two
+    return nil                                          -- one
+end
+
+local hit, ambiguous = as_place(whole)   -- destructuring
+```
+
+Multiple assignment transpiles to destructuring, so every path that returns
+ONE value hands a plain object to something expecting an iterable:
+
+    Plugin command error: TypeError: {} is not iterable
+
+The cruelty is which path breaks. In aw-coords the two-value path was the rare
+one — an ambiguous name — so `/coord fury` and `/coord 11,8`, the cases that
+work, were the cases that crashed. aw-loot's `merge_dump` returned `nil` only
+when the JSON would not decode, so a malformed paste took the import down
+instead of reporting a bad file. aw-healme's `pct()` returned `nil` when
+char.vitals had not arrived, which its own comment says happens early in every
+session, so the healer crashed exactly when its guards were doing their job.
+
+**A sim cannot catch this.** Real Lua pads a short return with nil and never
+complains; only the transpiler minds. Reverting the aw-coords fix leaves
+`tools/sim-coords.lua` passing. `tools/check-undefined.py` is the only guard,
+and it reports any function destructured at a call site whose paths disagree.
+
+Return a table with the extra information in a field. Nothing to destructure,
+nothing to get wrong at the call site.
+
 ### 17. Lua's 200 file-scope local limit is a real ceiling
 
 `aw-spellup.lua` is AT it. Adding one more `local` at file scope fails with

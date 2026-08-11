@@ -3,7 +3,7 @@
   "name": "Solao's Aardwolf Plugins",
   "description": "GMCP-driven Aardwolf panels: character, vitals, group, comms, quests and players.",
   "homepage": "https://github.com/SeanStoves/aardwolf-mudforge",
-  "generated": "2026-08-11T00:26:40Z",
+  "generated": "2026-08-11T00:45:45Z",
   "pluginCount": 14,
   "plugins": [
     {
@@ -37,14 +37,14 @@
     {
       "id": "aw-coords",
       "name": "Aardwolf Coordinates",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "author": "Solao",
       "description": "Grid position from GMCP, with a target and the run command to reach it.",
       "category": "widgets",
       "downloadUrl": "https://raw.githubusercontent.com/SeanStoves/aardwolf-mudforge/main/dist/aw-coords.json",
       "format": "json",
-      "sha256": "bfc82c853d9fd5fd2348bf0ff05afac8476d40e03a14f678e89bc23a4527d0b4",
-      "size": 22946,
+      "sha256": "b8c9667ff0d8877bb2648711f1e3eb27d1a5a7b955ec7f68c9a6810631c31248",
+      "size": 23685,
       "license": "MIT",
       "homepage": "https://github.com/SeanStoves/aardwolf-mudforge"
     },
@@ -93,14 +93,14 @@
     {
       "id": "aw-loot",
       "name": "Aardwolf Loot Tracker",
-      "version": "1.13.5",
+      "version": "1.13.6",
       "author": "Solao",
       "description": "Records what drops from what, shop stock and room resources, and parses every id box that scrolls past.",
       "category": "utilities",
       "downloadUrl": "https://raw.githubusercontent.com/SeanStoves/aardwolf-mudforge/main/dist/aw-loot.json",
       "format": "json",
-      "sha256": "ef6b3daebf26fcaf2b4c375b9ac469675a3c9ddb99fc6d4636a4411c5f812efd",
-      "size": 121011,
+      "sha256": "5560aef1f4e2507d7ef4706f14cab9740e1f23d8c5031a640573dcef67c30964",
+      "size": 121502,
       "license": "MIT",
       "homepage": "https://github.com/SeanStoves/aardwolf-mudforge"
     },
