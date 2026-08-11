@@ -3,7 +3,7 @@
   "name": "Solao's Aardwolf Plugins",
   "description": "GMCP-driven Aardwolf panels: character, vitals, group, comms, quests and players.",
   "homepage": "https://github.com/SeanStoves/aardwolf-mudforge",
-  "generated": "2026-08-11T01:40:44Z",
+  "generated": "2026-08-11T01:47:17Z",
   "pluginCount": 14,
   "plugins": [
     {
@@ -107,14 +107,14 @@
     {
       "id": "aw-portrait",
       "name": "Aardwolf Character Info",
-      "version": "1.12.4",
+      "version": "1.12.5",
       "author": "Solao",
       "description": "Character panel: portrait, level, stat grid, vitals, alignment and experience to level.",
       "category": "widgets",
       "downloadUrl": "https://raw.githubusercontent.com/SeanStoves/aardwolf-mudforge/main/dist/aw-portrait.json",
       "format": "json",
-      "sha256": "746e79d9ad3d3c94f19126ee7e03ea48ac0c04b122a050058cfc92b6f9672f53",
-      "size": 61408,
+      "sha256": "e2910b7317911b4d16d1b683e5b71efa56cd5667c3174b121a5fb21ce24ca4bf",
+      "size": 63092,
       "license": "MIT",
       "homepage": "https://github.com/SeanStoves/aardwolf-mudforge"
     },
