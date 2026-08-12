@@ -617,6 +617,65 @@ one does arrive as `""`, **`tonumber("")` is `nil` in Lua and `0` in
 JavaScript**. So the empty capture doesn't fail a numeric guard, it passes one
 with a confident zero. Test the string before converting it.
 
+### 11b. When the client spins, `sample` the WebContent process — don't theorise
+
+The client locked up mid-combat and the first theory was disk: its IndexedDB
+store had grown to 5.6 GB and it snapshots the world every five seconds. That
+theory was wrong, and an hour went into it before anything was measured.
+
+The WebContent process is a separate PID from the Tauri host, and it is the
+one to look at:
+
+```
+ps aux | grep WebKit.WebContent      # find the PID at ~100% CPU
+sample <pid> 6 -file /tmp/hang.txt
+```
+
+The host process sat at 0.0% CPU the whole time. WebContent was at 95.2%,
+which already rules out waiting on I/O — a stall on disk is a process asleep,
+not a process spinning.
+
+What came back:
+
+```
+operationValueAdd → jsAddSlowCase → JSObject::toPrimitive
+                  → JSArray::fastToString → JSStringJoiner::joinImpl
+operationValueSub → JSString::toNumber → fast_float::from_chars
+```
+
+Both shapes are the transpiler boundary showing through. `JSArray::fastToString`
+means an **array** was an operand of `+` — and a Lua function returning two
+values (`string.find` returns start AND end) arrives here as an array, so
+`string.find(...) + 1` is `array + number`, which JavaScript resolves by
+joining the array into a string. `JSString::toNumber` on the other branch is
+that string being coerced back for arithmetic. Neither throws. Both are silent
+in real Lua, where the extra return is simply dropped.
+
+So a loop written as
+
+```lua
+while string.sub(n, 1, 1) == "(" do
+    local close = string.find(n, ")", 1, true)
+    if not close then break end
+    n = trim(string.sub(n, close + 1))       -- close is not a plain number
+end
+```
+
+never shortens `n`, and there is no exit. This is NOTES #11 with a different
+verb, and it shipped anyway because the code reads exactly like Lua.
+
+**The rule that actually holds**: a loop must not depend on a boundary value
+being the type it looks like. Make the termination structural — every pass
+strictly shortens the string, or the loop stops:
+
+```lua
+local rest = trim(string.sub(n, close + 1))
+if string.len(rest) >= string.len(n) then break end
+n = rest
+```
+
+Nothing `string.find` or `string.sub` do at the boundary can defeat that.
+
 ### 14b. The trigger callback's second argument is the LINE, not the captures
 
 ```lua
