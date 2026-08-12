@@ -617,6 +617,58 @@ one does arrive as `""`, **`tonumber("")` is `nil` in Lua and `0` in
 JavaScript**. So the empty capture doesn't fail a numeric guard, it passes one
 with a confident zero. Test the string before converting it.
 
+### 14b. The trigger callback's second argument is the LINE, not the captures
+
+```lua
+addTrigger(pattern, function(captures, line, wildcards, rawLine) … end, opts)
+```
+
+Two of aw-snd's handlers were written `function(a, b)` and then read
+`as_text(a, b)`, which is the helper that returns a whole line when it is
+handed one. It is right for the handlers that want the line. It is wrong for
+a handler whose own pattern has just carved the mob out of that line, and both
+of those had one:
+
+```lua
+"^\\s*(?:\\((?:[^)]*)\\)\\s*)*(.+?)\\s+is (?:standing|sitting|…|here)"
+```
+
+The capture is `a lizardman citizen`. What went into the database was
+
+```
+(red aura) a lizardman citizen is here complaining about the catfolk.
+your slice ***** pulverizes ***** a complaining lizardman citizen! [104]
+```
+
+632 rows of 2236 before it was found, and nothing errors — a line is a
+perfectly good string. It only shows up when you read the data. Use `cap3`
+(the 0-/1-base inference of NOTES #14) when you want a group; `as_text` only
+when you want the line.
+
+### 14c. Triggers are case-INSENSITIVE by default
+
+`addTrigger`'s `caseSensitive` defaults to `false`, so a lowercase alternation
+matches shouting:
+
+```lua
+"\\b(?:destroys|…|pulverizes)\\b…"   -- fires on '***** PULVERIZES *****'
+```
+
+`tools/check-regex.py` was compiling every pattern case-sensitively, which
+made it *stricter* than the client: patterns passed the checker while matching
+lines in play that the checker said they could not. It compiles with
+`re.IGNORECASE` now. The whole existing corpus still passes under it, which is
+the only reason the change was safe to make in one go.
+
+A fixed-width column is worth the same warning. `where` prints the mob in a
+thirty-character field with **one** space after it, so a name that fills the
+field leaves a single space and a `\s{2,}` pattern never fires at all:
+
+```
+a complaining lizardman citize Inside the Temple      <- 30 chars, one space
+a lizardman hunter             Jungles of Verume      <- 18 chars, padded
+```
+
 ### 16. A `hyperlink` command reaches a PLUGIN command, and keeps the prompt
 
 Measured, not assumed. The guide says a link's action is "sent to the MUD",
